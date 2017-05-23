@@ -16,33 +16,36 @@ public:
     void print();
 private:
     struct Node {
-      Node (const std::string& src, struct Node* next = nullptr) : key(src), suffix_ptr(next) {
+      Node (size_t _start, size_t _len, struct Node* next = nullptr) : start(_start), len(_len), suffix_ptr(next) {
         child.resize(CHAR_MAX+1, nullptr);
       }
       ~Node () {
         for (Node* elem : child)
           delete elem;
         child.clear();
-        key.clear();
         suffix_ptr = nullptr;
       }
-      void print (size_t deep) {
-        for (size_t i = 0; i < child.size()/2; ++i) {
-          if (child[i] != nullptr)
-            child[i]->print(deep+1);
-        }
-        std::cout << std::string(deep*3, ' ') << key << std::endl;
-        for (size_t i = child.size()/2; i < child.size(); ++i) {
-          if (child[i] != nullptr)
-            child[i]->print(deep+1);
-        }
-      }
       std::vector<struct Node*> child;
-      std::string key;
+      size_t start, len;
       struct Node* suffix_ptr;
     };
 
-    Node* find_prefix_suffix(const std::string& key, size_t ind, bool& isEnd);
+    void print_node (Node* node, size_t deep) {
+      if (node == nullptr) return;
+
+      for (size_t i = 0; i < node->child.size()/2; ++i)
+        print_node(node->child[i], deep+1);
+
+      std::cout << std::string(deep*3, ' ');
+      for (size_t i = 0; i < node->len; ++i)
+        std::cout << text[node->start + i];
+      std::cout << std::endl;
+
+      for (size_t i = node->child.size()/2; i < child.size(); ++i)
+        print_node(node->child[i], deep+1);
+    }
+
+    Node* find_prefix_suffix(size_t ind, bool& isEnd);
 
     std::vector<Node*> child;
     std::string text;
