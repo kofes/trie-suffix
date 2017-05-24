@@ -4,6 +4,7 @@
 #include <vector>
 #include <climits>
 #include <iostream>
+#include <fstream>
 
 class Trie_suffix {
 public:
@@ -13,41 +14,28 @@ public:
     void add_suffix(char sym);
     void clear();
     bool substring_exist(const std::string& key);
-    void print();
+    void print(std::ofstream& f_out);
 private:
     struct Node {
-      Node (size_t _start, size_t _len, struct Node* next = nullptr) : start(_start), len(_len), suffix_ptr(next) {
+      Node (size_t _left, size_t *_right) : left(_left), right(_right) {
         child.resize(CHAR_MAX+1, nullptr);
+        is_tmp = false;
       }
       ~Node () {
         for (Node* elem : child)
           delete elem;
         child.clear();
-        suffix_ptr = nullptr;
       }
       std::vector<struct Node*> child;
-      size_t start, len;
-      struct Node* suffix_ptr;
+      size_t left, *right;
+      bool is_tmp;
     };
 
-    void print_node (Node* node, size_t deep) {
-      if (node == nullptr) return;
+    void print_node (Node* node, size_t deep, char sym, std::ofstream& f_out);
 
-      for (size_t i = 0; i < node->child.size()/2; ++i)
-        print_node(node->child[i], deep+1);
-
-      std::cout << std::string(deep*3, ' ');
-      for (size_t i = 0; i < node->len; ++i)
-        std::cout << text[node->start + i];
-      std::cout << std::endl;
-
-      for (size_t i = node->child.size()/2; i < child.size(); ++i)
-        print_node(node->child[i], deep+1);
-    }
-
-    Node* find_prefix_suffix(size_t ind, bool& isEnd);
+    Node* find_prefix_suffix(size_t ind, bool& is_fork);
 
     std::vector<Node*> child;
     std::string text;
-    Node* max_len_ptr;
+    size_t last_sym_pos, from_pos;
 };
